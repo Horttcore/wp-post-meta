@@ -2,11 +2,11 @@
 
 ![WordPress Post Meta](.github/banner.svg)
 
-[![Tests](https://github.com/ralfhortt/wp-post-meta/actions/workflows/tests.yml/badge.svg)](https://github.com/ralfhortt/wp-post-meta/actions/workflows/tests.yml)
-[![codecov](https://codecov.io/gh/ralfhortt/wp-post-meta/graph/badge.svg)](https://codecov.io/gh/ralfhortt/wp-post-meta)
+[![Tests](https://github.com/Horttcore/wp-post-meta/actions/workflows/tests.yml/badge.svg)](https://github.com/Horttcore/wp-post-meta/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/gh/Horttcore/wp-post-meta/graph/badge.svg)](https://codecov.io/gh/Horttcore/wp-post-meta)
 [![PHP Version](https://img.shields.io/packagist/php-v/ralfhortt/wp-post-meta)](https://packagist.org/packages/ralfhortt/wp-post-meta)
 [![Latest Version](https://img.shields.io/packagist/v/ralfhortt/wp-post-meta)](https://packagist.org/packages/ralfhortt/wp-post-meta)
-[![License](https://img.shields.io/packagist/l/ralfhortt/wp-post-meta)](https://github.com/ralfhortt/wp-post-meta/blob/main/LICENSE)
+[![License](https://img.shields.io/packagist/l/ralfhortt/wp-post-meta)](https://github.com/Horttcore/wp-post-meta/blob/main/LICENSE)
 
 </div>
 
