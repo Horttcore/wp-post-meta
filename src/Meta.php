@@ -735,7 +735,7 @@ class Meta
         $componentName = $this->generateComponentName($metaBoxId);
         $panelName = $metaBoxId . '-panel';
 
-        // Generate field controls
+        // Generate field controls (each wrapped in PanelRow for WordPress default spacing)
         $fieldControls = [];
         foreach ($config['fields'] as $fieldKey) {
             if (!isset($this->fields[$fieldKey])) {
@@ -743,7 +743,8 @@ class Meta
             }
 
             $field = $this->fields[$fieldKey];
-            $fieldControls[] = $this->generateFieldControl($fieldKey, $field);
+            $control = $this->generateFieldControl($fieldKey, $field);
+            $fieldControls[] = "el(PanelRow, null, {$control})";
         }
 
         $fieldsJs = implode(",\n            ", $fieldControls);
@@ -758,7 +759,7 @@ class Meta
     const { registerPlugin } = wp.plugins;
     const { {$panelComponent} } = wp.editPost;
     const { useSelect, useDispatch } = wp.data;
-    const { TextControl, ToggleControl, __experimentalNumberControl: NumberControl } = wp.components;
+    const { TextControl, ToggleControl, PanelRow, __experimentalNumberControl: NumberControl } = wp.components;
     const { createElement: el } = wp.element;
     
     const {$componentName} = function() {
