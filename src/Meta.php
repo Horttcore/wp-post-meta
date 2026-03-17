@@ -806,6 +806,19 @@ JS;
     }
 
     /**
+     * Generate JavaScript expression for reading a meta value (supports hyphenated keys)
+     *
+     * @param string $key Meta key
+     * @return string JavaScript expression e.g. meta["first-name"]
+     */
+    protected function metaValueExpression(string $key): string
+    {
+        $keyJs = json_encode($key);
+
+        return 'meta[' . $keyJs . ']';
+    }
+
+    /**
      * Generate JavaScript for a single field control
      *
      * @param string $key Field key
@@ -834,10 +847,12 @@ JS;
      */
     protected function generateTextControl(string $key, string $label): string
     {
+        $metaValue = $this->metaValueExpression($key);
+
         return "el(TextControl, {
                 label: '{$label}',
-                value: meta.{$key} || '',
-                onChange: function(value) { updateMeta('{$key}', value); }
+                value: {$metaValue} || '',
+                onChange: function(value) { updateMeta(" . json_encode($key) . ", value); }
             })";
     }
 
@@ -850,10 +865,12 @@ JS;
      */
     protected function generateBooleanControl(string $key, string $label): string
     {
+        $metaValue = $this->metaValueExpression($key);
+
         return "el(ToggleControl, {
                 label: '{$label}',
-                checked: !!meta.{$key},
-                onChange: function(value) { updateMeta('{$key}', value); }
+                checked: !!{$metaValue},
+                onChange: function(value) { updateMeta(" . json_encode($key) . ", value); }
             })";
     }
 
@@ -868,11 +885,12 @@ JS;
     protected function generateNumberControl(string $key, string $label, string $step): string
     {
         $parseFunc = $step === '1' ? 'parseInt' : 'parseFloat';
-        
+        $metaValue = $this->metaValueExpression($key);
+
         return "el(NumberControl, {
                 label: '{$label}',
-                value: meta.{$key} || '',
-                onChange: function(value) { updateMeta('{$key}', {$parseFunc}(value) || 0); },
+                value: {$metaValue} || '',
+                onChange: function(value) { updateMeta(" . json_encode($key) . ", {$parseFunc}(value) || 0); },
                 step: '{$step}'
             })";
     }
