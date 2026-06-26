@@ -136,6 +136,64 @@ describe('Meta', function () {
 
         });
 
+        describe('addText()', function () {
+
+            it('adds multiline string field with correct type', function () {
+                $meta = Meta::for(objectSubtypes: 'product')
+                    ->addText(key: 'description', description: 'Product description');
+
+                $fields = $meta->getFields();
+
+                expect($fields['description']['type'])->toBe('string')
+                    ->and($fields['description']['description'])->toBe('Product description')
+                    ->and($fields['description']['multiline'])->toBeTrue();
+            });
+
+            it('returns self for chaining', function () {
+                $meta = Meta::for(objectSubtypes: 'product');
+                $result = $meta->addText(key: 'description');
+
+                expect($result)->toBe($meta);
+            });
+
+            it('generates TextareaControl in block editor', function () {
+                global $wp_scripts, $typenow;
+
+                $typenow = 'product';
+
+                Meta::for(objectSubtypes: 'product')
+                    ->addText(key: 'description', description: 'Product description')
+                    ->showInEditor(keys: 'description', title: 'Product Details')
+                    ->register();
+
+                do_action('enqueue_block_editor_assets');
+
+                $inlineScript = $wp_scripts['meta-boxes-product']['inline']['after'][0] ?? '';
+
+                expect($inlineScript)->toContain('TextareaControl')
+                    ->and($inlineScript)->not->toContain('el(TextControl, {
+                label: \'Product description\'');
+            });
+
+            it('renders textarea in quick edit', function () {
+                global $wp_filter;
+
+                Meta::for(objectSubtypes: 'product')
+                    ->addText(key: 'description', description: 'Product description')
+                    ->addColumn(key: 'description', label: 'Description')
+                    ->showInQuickEdit(keys: 'description')
+                    ->register();
+
+                ob_start();
+                do_action('quick_edit_custom_box', 'description', 'product');
+                $output = ob_get_clean();
+
+                expect($output)->toContain('<textarea')
+                    ->and($output)->not->toContain('<input type="text"');
+            });
+
+        });
+
         describe('addBoolean()', function () {
 
             it('adds boolean field with correct type', function () {

@@ -60,6 +60,7 @@ class Meta
             'type' => $type,
             'description' => $description ?? '',
             'single' => true,
+            'multiline' => false,
             'show_in_rest' => [
                 'schema' => [
                     'type' => $type,
@@ -99,6 +100,37 @@ class Meta
             updateCallback: $updateCallback,
             authCallback: $authCallback
         );
+    }
+
+    /**
+     * Add a multiline text field to the REST API
+     *
+     * @param string $key Meta key to expose
+     * @param string|null $description Description for API documentation
+     * @param callable|null $getCallback Custom get callback
+     * @param callable|null $updateCallback Custom update callback
+     * @param callable|null $authCallback Custom authorization callback
+     * @return self
+     */
+    public function addText(
+        string $key,
+        ?string $description = null,
+        ?callable $getCallback = null,
+        ?callable $updateCallback = null,
+        ?callable $authCallback = null
+    ): self {
+        $this->add(
+            key: $key,
+            type: 'string',
+            description: $description,
+            getCallback: $getCallback,
+            updateCallback: $updateCallback,
+            authCallback: $authCallback
+        );
+
+        $this->fields[$key]['multiline'] = true;
+
+        return $this;
     }
 
     /**
@@ -584,6 +616,14 @@ class Meta
                 break;
 
             case 'string':
+                if (!empty($field['multiline'])) {
+                    echo '<textarea name="' . esc_attr($key) . '" id="' . esc_attr($fieldId) . '" class="widefat" rows="4"></textarea>';
+                    break;
+                }
+
+                echo '<input type="text" name="' . esc_attr($key) . '" id="' . esc_attr($fieldId) . '" class="widefat" />';
+                break;
+
             default:
                 echo '<input type="text" name="' . esc_attr($key) . '" id="' . esc_attr($fieldId) . '" class="widefat" />';
                 break;
@@ -759,7 +799,7 @@ class Meta
     const { registerPlugin } = wp.plugins;
     const { {$panelComponent} } = wp.editPost;
     const { useSelect, useDispatch } = wp.data;
-    const { TextControl, ToggleControl, PanelRow, __experimentalNumberControl: NumberControl } = wp.components;
+    const { TextControl, TextareaControl, ToggleControl, PanelRow, __experimentalNumberControl: NumberControl } = wp.components;
     const { createElement: el } = wp.element;
     
     const {$componentName} = function() {
@@ -831,10 +871,13 @@ JS;
         $type = $field['type'];
         $label = addslashes($field['description'] ?: ucwords(str_replace(['_', '-'], ' ', $key)));
 
-        return match($type) {
+        return match ($type) {
             'boolean' => $this->generateBooleanControl($key, $label),
             'integer' => $this->generateNumberControl($key, $label, '1'),
             'number' => $this->generateNumberControl($key, $label, 'any'),
+            'string' => !empty($field['multiline'])
+                ? $this->generateTextareaControl($key, $label)
+                : $this->generateTextControl($key, $label),
             default => $this->generateTextControl($key, $label),
         };
     }
@@ -851,6 +894,24 @@ JS;
         $metaValue = $this->metaValueExpression($key);
 
         return "el(TextControl, {
+                label: '{$label}',
+                value: {$metaValue} || '',
+                onChange: function(value) { updateMeta(" . json_encode($key) . ", value); }
+            })";
+    }
+
+    /**
+     * Generate textarea control JavaScript
+     *
+     * @param string $key Field key
+     * @param string $label Field label
+     * @return string JavaScript code
+     */
+    protected function generateTextareaControl(string $key, string $label): string
+    {
+        $metaValue = $this->metaValueExpression($key);
+
+        return "el(TextareaControl, {
                 label: '{$label}',
                 value: {$metaValue} || '',
                 onChange: function(value) { updateMeta(" . json_encode($key) . ", value); }
